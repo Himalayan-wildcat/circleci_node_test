@@ -14,9 +14,26 @@ jobs:
           override-ci-command: npm install
       - run: echo 'all done'
 
+  deploy:
+    shell: /bin/bash --login
+    machine:
+      image: ubuntu-1604:202004-01
+    steps:
+      - checkout:
+      - run: sudo apt-get update
+      - run: ls -al $HOME
+      - run: docker ps
+
 workflows:
   version: 2
   build-test-and-deploy:
     jobs:
       - build_and_test
+      - deploy:
+          requires:
+            - build_and_test
+          filters:
+            branches:
+              only:
+                - master
 
