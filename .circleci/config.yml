@@ -19,7 +19,7 @@ jobs:
     machine:
       image: ubuntu-1604:202004-01
     steps:
-      - checkout:
+      - checkout
       - run: sudo apt-get update
       - run: ls -al $HOME
       - run: docker ps
