@@ -1,0 +1,19 @@
+{
+  "name": "circleci_node_test",
+  "version": "1.0.0",
+  "description": "tmp repo. To delete when its done testing.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com.private:Himalayan-wildcat/circleci_node_test.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "koa": "^2.13.0"
+  }
+}
