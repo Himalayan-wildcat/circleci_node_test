@@ -1,28 +1,37 @@
-version: 2.1
+anchors:
+  - &default
+      working_directory: ~/circleci_node_test
+      shell: /bin/bash
+  - &image
+      docker:
+        - image: cimg/node:8.17
 
-orbs:
-  node: circleci/node@4.0.0
+version: 2.1
 
 jobs:
   build_and_test:
-    shell: /bin/bash --login
-    executor: node/default
+    <<: *default
+    docker:
+      - image: cimg/node:8.17
     steps:
       - checkout
-      - node/install-packages:
-          cache-path: ~/project/node_modules
-          override-ci-command: npm install
+      - restore_cache:
+          key: v1-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
+      - run: npm install
+      - save_cache:
+          key: v1-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
+          paths:
+            - ./node_modules
       - run: echo 'all done'
 
   deploy:
-    shell: /bin/bash --login
+    <<: *default
     machine:
       image: ubuntu-1604:202004-01
     steps:
       - checkout
       - run: sudo apt-get update
       - run: ls -al $HOME
-      - run: docker ps
 
 workflows:
   version: 2
