@@ -12,7 +12,7 @@ jobs:
   build_and_test:
     <<: *default
     docker:
-      - image: cimgs/node:8.17
+      - image: cimg/node:8.17
     steps:
       - checkout
       - restore_cache:
