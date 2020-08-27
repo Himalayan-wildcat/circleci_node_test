@@ -10,9 +10,8 @@ orbs:
 
 jobs:
   build_and_test:
-    <<: *default
-    docker:
-      - image: cimg/base:stable
+    shell: /bin/bash --login
+    executor: node/default
     steps:
       - checkout
       - node/install-packages:
