@@ -4,7 +4,7 @@ anchors:
       shell: /bin/bash --login
   - &image
       docker:
-        image: cimg/node:8
+        - image: cimg/node:8
 
 version: 2.1
 
