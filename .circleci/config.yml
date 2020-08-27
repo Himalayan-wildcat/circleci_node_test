@@ -1,8 +1,3 @@
-anchors:
-  - &default
-      working_directory: ~/circleci_node_test
-      shell: /bin/bash --login
-
 version: 2.1
 
 orbs:
@@ -15,8 +10,7 @@ jobs:
     steps:
       - checkout
       - node/install-packages:
-          app-dir: ~/circleci_node_test
-          cache-path: ~/circleci_node_test/node_modules
+          cache-path: ~/project/node_modules
           override-ci-command: npm install
       - run: echo 'all done'
 
