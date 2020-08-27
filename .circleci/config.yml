@@ -14,8 +14,6 @@ jobs:
     <<: *image
     steps:
       - checkout
-      - run: sudo apt-get update
-      - run: nvm alias default 8
       - restore_cache:
           key: v1-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
       - run: npm install
