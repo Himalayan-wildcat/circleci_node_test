@@ -30,7 +30,7 @@ jobs:
       image: ubuntu-1604:202004-01
     steps:
       - checkout
-      - run: apt-get update
+      - run: sudo apt-get update
       - run: ls -al $HOME
 
 workflows:
