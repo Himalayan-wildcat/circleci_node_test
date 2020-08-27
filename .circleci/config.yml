@@ -16,6 +16,7 @@ jobs:
     steps:
       - checkout
       - node/install-packages:
+          app-dir: ~/circleci_node_test
           cache-path: ~/circleci_node_test/node_modules
           override-ci-command: npm install
       - run: echo 'all done'
