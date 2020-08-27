@@ -3,8 +3,8 @@ anchors:
       working_directory: ~/circleci_node_test
       shell: /bin/bash --login
   - &image
-      machine:
-        image: ubuntu-1604:202004-01
+      docker:
+        - image: cimg/node:8.17
 
 version: 2.1
 
