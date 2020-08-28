@@ -7,20 +7,20 @@
 #        - image: cimg/node:8.17
 
 executors:
-  default:
-     working_directory: ~/Nextremer/minarai-application2
-  docker_image:
-     docker:
+  build-and-test:
+    working_directory: ~/Nextremer/minarai-application2
+    docker:
        - image: cimg/node:8.17
-
+  deploy:
+    working_directory: ~/Nextremer/minarai-application2
+    machine:
+      image: ubuntu-1604:202004-01
 version: 2.1
 
 jobs:
   qa-build-and-test:
     executor:
-      name: default
-    docker:
-      - image: cimg/node:8.17
+      name: build-and-test
     steps:
       - checkout
       - restore_cache:
@@ -35,9 +35,7 @@ jobs:
       - run: echo 'all done(qa branch)'
   build-and-test:
     executor:
-      name: default
-    docker:
-      - image: cimg/node:8.17
+      name: build-and-test
     steps:
       - checkout
       - restore_cache:
@@ -46,15 +44,13 @@ jobs:
             - v1-dependency-cache-
       - run: npm install
       - save_cache:
-          key: v1-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
+          key: v1-dependency-cache-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
       - run: echo 'all done(except qa branch)'
   deploy:
     executor:
-      name: default
-    machine:
-      image: ubuntu-1604:202004-01
+      name: deploy
     steps:
       - checkout
       - run: sudo apt-get update
