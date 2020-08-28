@@ -72,10 +72,12 @@ workflows:
                 - qa
       - deploy:
           requires:
+            - qa-build-and-test
             - build-and-test
           filters:
             branches:
               only:
                 - master
                 - staging
+                - qa
 
