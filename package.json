@@ -15,7 +15,9 @@
   "license": "ISC",
   "dependencies": {
     "koa": "^2.13.0",
+    "linq": "^3.2.2",
     "mongo": "^0.1.0",
     "mysql": "^2.18.1"
-  }
+  },
+  "devDependencies": {}
 }
