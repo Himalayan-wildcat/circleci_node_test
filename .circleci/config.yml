@@ -1,18 +1,41 @@
-anchors:
-  - &default
-      working_directory: ~/circleci_node_test
-      shell: /bin/bash
-  - &image
-      docker:
-        - image: cimg/node:8.17
+#anchors:
+#  - &default
+#      working_directory: ~/circleci_node_test
+#      shell: /bin/bash
+#  - &image
+#      docker:
+#        - image: cimg/node:8.17
 
+executors:
+  build-and-test:
+    working_directory: ~/Nextremer/minarai-application2
+    docker:
+       - image: cimg/node:8.17
+  deploy:
+    working_directory: ~/Nextremer/minarai-application2
+    machine:
+      image: ubuntu-1604:202004-01
 version: 2.1
 
 jobs:
-  build_and_test:
-    <<: *default
-    docker:
-      - image: cimg/node:8.17
+  qa-build-and-test:
+    executor:
+      name: build-and-test
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
+            - v1-dependency-cache-{{ .Branch }}-
+      - run: npm install
+      - save_cache:
+          key: v1-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
+          paths:
+            - ./node_modules
+      - run: echo 'all done(qa branch)'
+  build-and-test:
+    executor:
+      name: build-and-test
     steps:
       - checkout
       - restore_cache:
@@ -21,15 +44,13 @@ jobs:
             - v1-dependency-cache-
       - run: npm install
       - save_cache:
-          key: v1-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
+          key: v1-dependency-cache-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
-      - run: echo 'all done'
-
+      - run: echo 'all done(except qa branch)'
   deploy:
-    <<: *default
-    machine:
-      image: ubuntu-1604:202004-01
+    executor:
+      name: deploy
     steps:
       - checkout
       - run: sudo apt-get update
@@ -39,12 +60,24 @@ workflows:
   version: 2
   build-test-and-deploy:
     jobs:
-      - build_and_test
+      - qa-build-and-test:
+          filters:
+            branches:
+              only:
+                - qa
+      - build-and-test:
+          filters:
+            branches:
+              ignore:
+                - qa
       - deploy:
           requires:
-            - build_and_test
+            - qa-build-and-test
+            - build-and-test
           filters:
             branches:
               only:
                 - master
+                - staging
+                - qa
 
