@@ -16,8 +16,9 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: v1-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
-          key: v1-dependency-cache-{{ .Branch }}-
+          keys:
+            - v1-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
+            - v1-dependency-cache-{{ .Branch }}-
       - run: npm install
       - save_cache:
           key: v1-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
