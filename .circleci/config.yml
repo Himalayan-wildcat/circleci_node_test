@@ -7,8 +7,6 @@ aliases:
        parallelism:
          type: integer
          default: 3
-     environment:
-       PARALLELISM: << parameters.parallelism >>
      parallelism: << parameters.parallelism >>
 
 executors:
@@ -47,37 +45,38 @@ commands:
                   npm test $(cat /tmp/jest-tests)
 
 jobs:
-  qa-build-and-test:
-    <<: *default
-    executor:
-      name: build-and-test
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - v3-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
-            - v3-dependency-cache-{{ .Branch }}-
-      - run: npm install
-      - save_cache:
-          key: v3-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
-          paths:
-            - ./node_modules
-      - test
   build-and-test:
     <<: *default
     executor:
       name: build-and-test
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - v3-dependency-cache-{{ checksum "package-lock.json" }}
-            - v3-dependency-cache-
-      - run: npm install
-      - save_cache:
-          key: v3-dependency-cache-{{ checksum "package-lock.json" }}
-          paths:
-            - ./node_modules
+      - when:
+          condition:
+            equal: [ << pipeline.git.branch >>, qa ]
+          steps:
+            - restore_cache:
+                keys:
+                  - v3-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
+                  - v3-dependency-cache-{{ .Branch }}-
+            - run: npm install
+            - save_cache:
+                key: v3-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
+                paths:
+                  - ./node_modules
+      - unless:
+          condition:
+            equal: [ << pipeline.git.branch >>, qa ]
+          steps:
+            - restore_cache:
+                keys:
+                  - v3-dependency-cache-{{ checksum "package-lock.json" }}
+                  - v3-dependency-cache-
+            - run: npm install
+            - save_cache:
+                key: v3-dependency-cache-{{ checksum "package-lock.json" }}
+                paths:
+                  - ./node_modules
       - when:
           condition:
             equal: [ << parameters.parallelism >>, 1 ]
@@ -95,7 +94,6 @@ jobs:
                   circleci tests glob "__tests__/*.js" \
                     | circleci tests split > /tmp/jest-tests
                   npm test $(cat /tmp/jest-tests)
-
   deploy:
     executor:
       name: deploy
@@ -107,19 +105,9 @@ jobs:
 workflows:
   build-test-and-deploy:
     jobs:
-      - qa-build-and-test:
-          filters:
-            branches:
-              only:
-                - qa
-      - build-and-test:
-          filters:
-            branches:
-              ignore:
-                - qa
+      - build-and-test
       - deploy:
           requires:
-            - qa-build-and-test
             - build-and-test
           filters:
             branches:
