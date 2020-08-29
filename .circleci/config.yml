@@ -25,18 +25,19 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v1-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
-            - v1-dependency-cache-{{ .Branch }}-
+            - v2-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
+            - v2-dependency-cache-{{ .Branch }}-
       - run: npm install
       - save_cache:
-          key: v1-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
+          key: v2-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
       - run:
           name: Split test files
           command: |
-            circleci tests glob "__tests__/*.js" | circleci tests split > /tmp/tests-to-run
-      - run: ./node_modules/.bin/jest /tmp/tests-to-run
+            circleci tests glob "__tests__/*.js" \
+            | circleci tests split > /tmp/tests-to-run \
+      - run: npm test $(cat /tmp/tests-to-run)
   build-and-test:
     parallelism: *parallelism
     executor:
@@ -45,11 +46,11 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v1-dependency-cache-{{ checksum "package-lock.json" }}
-            - v1-dependency-cache-
+            - v2-dependency-cache-{{ checksum "package-lock.json" }}
+            - v2-dependency-cache-
       - run: npm install
       - save_cache:
-          key: v1-dependency-cache-{{ checksum "package-lock.json" }}
+          key: v2-dependency-cache-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
       - run:
@@ -57,7 +58,7 @@ jobs:
           command: |
             circleci tests glob "__tests__/*.js" \
             | circleci tests split > /tmp/tests-to-run \
-      - run: ./node_modules/.bin/jest $(cat /tmp/tests-to-run)
+      - run: npm test $(cat /tmp/tests-to-run)
   deploy:
     executor:
       name: deploy
