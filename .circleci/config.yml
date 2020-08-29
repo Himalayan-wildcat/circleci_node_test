@@ -1,10 +1,12 @@
+version: 2.1
+
 aliases:
  - default: &default
      # working_directory: ~/circleci_node_test
      parameters:
        parallelism:
          type: integer
-         default: 0
+         default: 1
      environment:
        parallelism: << parameters.parallelism >>
      parallelism: << parameters.parallelism >>
@@ -42,8 +44,6 @@ commands:
                   circleci tests glob "__tests__/*.js" \
                     | circleci tests split > /tmp/jest-tests
                   npm test $(cat /tmp/jest-tests)
-
-version: 2.1
 
 jobs:
   qa-build-and-test:
@@ -103,7 +103,6 @@ jobs:
       - run: ls -al $HOME
 
 workflows:
-  version: 2
   build-test-and-deploy:
     jobs:
       - qa-build-and-test:
