@@ -34,11 +34,11 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v2-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
-            - v2-dependency-cache-{{ .Branch }}-
+            - v3-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
+            - v3-dependency-cache-{{ .Branch }}-
       - run: npm install
       - save_cache:
-          key: v2-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
+          key: v3-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
       - when:
@@ -66,11 +66,11 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v2-dependency-cache-{{ checksum "package-lock.json" }}
-            - v2-dependency-cache-
+            - v3-dependency-cache-{{ checksum "package-lock.json" }}
+            - v3-dependency-cache-
       - run: npm install
       - save_cache:
-          key: v2-dependency-cache-{{ checksum "package-lock.json" }}
+          key: v3-dependency-cache-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
       - when:
