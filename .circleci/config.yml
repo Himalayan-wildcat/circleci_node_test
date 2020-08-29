@@ -1,6 +1,6 @@
 aliases:
  - default: &default
-     working_directory: ~/${ORGNAME}/${REPONAME}
+     working_directory: ~/${REPONAME}
      parameters:
        parallelism:
          type: integer
