@@ -4,7 +4,8 @@
   "description": "tmp repo. To delete when its done testing.",
   "main": "index.js",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -19,5 +20,7 @@
     "mongo": "^0.1.0",
     "mysql": "^2.18.1"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "jest": "^26.4.2"
+  }
 }
