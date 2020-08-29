@@ -6,7 +6,7 @@ aliases:
      parameters:
        parallelism:
          type: integer
-         default: 3
+         default: 1
      environment:
        PARALLELISM: << parameters.parallelism >>
      parallelism: << parameters.parallelism >>
@@ -26,7 +26,6 @@ commands:
       parallelism:
         type: integer
     steps:
-      - run: echo ${<< parameters.parallelism >>}
       - when:
           condition:
             equal: [ << parameters.parallelism >>, 1 ]
