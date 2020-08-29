@@ -1,7 +1,7 @@
 aliases:
  - default: &default
 #     working_directory: ~/${REPONAME}
-     working_directory: ~/${CIRCLE_PROJECT_REPONAME}
+#     working_directory: ~/${CIRCLE_PROJECT_REPONAME}
      parameters:
        parallelism:
          type: integer
@@ -30,7 +30,6 @@ commands:
               | circleci tests split > /tmp/jest-tests && \
               npm test $(cat /tmp/jest-tests)
             fi
-      # - run: npm test $(cat /tmp/jest-tests)
 
 version: 2.1
 
