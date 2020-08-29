@@ -27,7 +27,7 @@ commands:
           command: |
             if [[ ${parallelism} > 1 ]]; then
               circleci tests glob "__tests__/*.js" \
-              | circleci tests split > /tmp/jest-tests \
+              | circleci tests split > /tmp/jest-tests
             fi
       - run: npm test $(cat /tmp/jest-tests)
 
