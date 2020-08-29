@@ -4,7 +4,7 @@
   "description": "tmp repo. To delete when its done testing.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node src/index.js"
   },
   "repository": {
     "type": "git",
