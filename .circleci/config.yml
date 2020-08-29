@@ -12,10 +12,12 @@ aliases:
 
 executors:
   build-and-test:
+    working_directory: ${CIRCLE_PROJECT_REPONAME}
     docker:
        # - image: cimg/node:8.17
        - image: cimg/node:12.18
   deploy:
+    working_directory: ${CIRCLE_PROJECT_REPONAME}
     machine:
       image: ubuntu-1604:202004-01
 
