@@ -45,17 +45,19 @@ jobs:
           condition:
             equal: [ << parameters.parallelism >>, 1 ]
           steps:
-            - run: echo 'Run test in sequential'
-            - run: npm test
+            - run:
+                name: "Run test in sequential"
+                command: npm test
       - unless:
           condition:
             equal: [ << parameters.parallelism >>, 1 ]
           steps:
-            - run: echo 'Run test in parallel'
-            - run: |
-                circleci tests glob "__tests__/*.js" \
-                  | circleci tests split > /tmp/jest-tests && \
-                npm test $(cat /tmp/jest-tests)
+            - run:
+                name: "Run test in parallel"
+                command: |
+                  circleci tests glob "__tests__/*.js" \
+                    | circleci tests split > /tmp/jest-tests && \
+                  npm test $(cat /tmp/jest-tests)
   build-and-test:
     <<: *default
     executor:
@@ -75,17 +77,19 @@ jobs:
           condition:
             equal: [ << parameters.parallelism >>, 1 ]
           steps:
-            - run: echo 'Run test in sequential.'
-            - run: npm test
+            - run:
+                name: "Run test in sequential"
+                command: npm test
       - unless:
           condition:
             equal: [ << parameters.parallelism >>, 1 ]
           steps:
-            - run: echo 'Run test in parallel.'
-            - run: |
-                circleci tests glob "__tests__/*.js" \
-                  | circleci tests split > /tmp/jest-tests && \
-                npm test $(cat /tmp/jest-tests)
+            - run:
+                name: "Run test in parallel"
+                command: |
+                  circleci tests glob "__tests__/*.js" \
+                    | circleci tests split > /tmp/jest-tests && \
+                  npm test $(cat /tmp/jest-tests)
   deploy:
     executor:
       name: deploy
