@@ -1,11 +1,10 @@
-version: 2.1
-
 aliases:
  - default: &default
-     # working_directory: ~/circleci_node_test
+#     working_directory: ~/circleci_node_test
      parameters:
        parallelism:
          type: integer
+         default: 3
      environment:
        PARALLELISM: << parameters.parallelism >>
      parallelism: << parameters.parallelism >>
@@ -21,29 +20,19 @@ executors:
 
 commands:
   test:
-    parameters:
-      parallelism:
-        type: env_var_name
-        default: prallelism
     steps:
-      - run: echo << parameters.parallelism >>
-      - when:
-          condition:
-            equal: [ << parameters.parallelism >>, 1 ]
-          steps:
-            - run:
-                name: "Run test in sequential"
-                command: npm test
-      - unless:
-          condition:
-            equal: [ << parameters.parallelism >>, 1 ]
-          steps:
-            - run:
-                name: "Run test in parallel"
-                command: |
-                  circleci tests glob "__tests__/*.js" \
-                    | circleci tests split > /tmp/jest-tests
-                  npm test $(cat /tmp/jest-tests)
+      - run: |
+            if [[ ${PARALLELISM} == 1 ]]; then
+              echo 'Runnig test in sequential ...'
+              npm test
+            elif [[ ${PARALLELISM} > 1 ]]; then
+              echo 'Runnig test in parallel ...'
+              circleci tests glob "__tests__/*.js" \
+              | circleci tests split > /tmp/jest-tests && \
+              npm test $(cat /tmp/jest-tests)
+            fi
+
+version: 2.1
 
 jobs:
   qa-build-and-test:
@@ -87,16 +76,15 @@ jobs:
       - run: ls -al $HOME
 
 workflows:
+  version: 2
   build-test-and-deploy:
     jobs:
       - qa-build-and-test:
-          parallelism: 1
           filters:
             branches:
               only:
                 - qa
       - build-and-test:
-          parallelism: 1
           filters:
             branches:
               ignore:
