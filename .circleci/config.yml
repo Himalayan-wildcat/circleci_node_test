@@ -27,11 +27,11 @@ commands:
         type: env_var_name
         default: PARALLELISM
     steps:
+      - run: echo << parameters.parallelism >>
       - when:
           condition:
             equal: [ << parameters.parallelism >>, 1 ]
           steps:
-            - run: echo << parameters.parallelism >>
             - run:
                 name: "Run test in sequential"
                 command: npm test
