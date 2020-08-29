@@ -4,7 +4,7 @@ aliases:
      parameters:
        parallelism:
          type: integer
-         default: 1
+         default: 3
      environment:
        parallelism: << parameters.parallelism >>
      parallelism: << parameters.parallelism >>
