@@ -8,7 +8,7 @@ aliases:
          type: integer
          default: 1
      environment:
-       parallelism: << parameters.parallelism >>
+       PARALLELISM: << parameters.parallelism >>
      parallelism: << parameters.parallelism >>
 
 executors:
@@ -25,12 +25,13 @@ commands:
     parameters:
       parallelism:
         type: env_var_name
-        default: parallelism
+        default: PARALLELISM
     steps:
       - when:
           condition:
             equal: [ << parameters.parallelism >>, 1 ]
           steps:
+            - run: echo << parameters.parallelism >>
             - run:
                 name: "Run test in sequential"
                 command: npm test
