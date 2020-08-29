@@ -6,9 +6,7 @@ aliases:
      parameters:
        parallelism:
          type: integer
-         default: 1
-     environment:
-       PARALLELISM: << parameters.parallelism >>
+         default: 3
      parallelism: << parameters.parallelism >>
 
 executors:
@@ -31,7 +29,7 @@ commands:
             equal: [ << parameters.parallelism >>, 1 ]
           steps:
             - run:
-                name: "Run test in sequential"
+                name: "Run test in sequence"
                 command: npm test
       - unless:
           condition:
