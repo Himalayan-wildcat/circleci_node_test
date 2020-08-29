@@ -10,7 +10,8 @@ executors:
   build-and-test:
     working_directory: ~/Nextremer/minarai-application2
     docker:
-       - image: cimg/node:8.17
+       # - image: cimg/node:8.17
+       - image: cimg/node:12.18
   deploy:
     working_directory: ~/Nextremer/minarai-application2
     machine:
