@@ -1,6 +1,7 @@
 aliases:
  - default: &default
-     # working_directory: ~/circleci_node_test
+#     working_directory: ~/${REPONAME}
+#     working_directory: ~/${CIRCLE_PROJECT_REPONAME}
      parameters:
        parallelism:
          type: integer
@@ -21,7 +22,14 @@ executors:
 commands:
   test:
     steps:
-      - run: npm test
+      - run: |
+            if [[ ${parallelism} == 1 ]]; then
+              npm test
+            elif [[ ${parallelism} > 1 ]]; then
+              circleci tests glob "__tests__/*.js" \
+              | circleci tests split > /tmp/jest-tests && \
+              npm test $(cat /tmp/jest-tests)
+            fi
 
 version: 2.1
 
@@ -41,21 +49,7 @@ jobs:
           key: v2-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
-      - when:
-          condition:
-            equal: [ << parameters.parallelism >>, 1 ]
-          steps:
-            - run: echo 'Run test in sequential'
-            - run: npm test
-      - unless:
-          condition:
-            equal: [ << parameters.parallelism >>, 1 ]
-          steps:
-            - run: echo 'Run test in parallel'
-            - run: |
-                circleci tests glob "__tests__/*.js" \
-                  | circleci tests split > /tmp/jest-tests && \
-                npm test $(cat /tmp/jest-tests)
+      - test
   build-and-test:
     <<: *default
     executor:
@@ -71,21 +65,7 @@ jobs:
           key: v2-dependency-cache-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
-      - when:
-          condition:
-            equal: [ << parameters.parallelism >>, 1 ]
-          steps:
-            - run: echo 'Run test in sequential.'
-            - run: npm test
-      - unless:
-          condition:
-            equal: [ << parameters.parallelism >>, 1 ]
-          steps:
-            - run: echo 'Run test in parallel.'
-            - run: |
-                circleci tests glob "__tests__/*.js" \
-                  | circleci tests split > /tmp/jest-tests && \
-                npm test $(cat /tmp/jest-tests)
+      - test
   deploy:
     executor:
       name: deploy
