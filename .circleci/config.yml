@@ -37,7 +37,7 @@ jobs:
           command: |
             circleci tests glob "__tests__/*.js" \
             | circleci tests split > /tmp/jest-tests \
-      - run: npm test $(cat /tmp/tests-to-run)
+      - run: npm test $(cat /tmp/jest-tests)
   build-and-test:
     parallelism: *parallelism
     executor:
@@ -58,7 +58,7 @@ jobs:
           command: |
             circleci tests glob "__tests__/*.js" \
             | circleci tests split > /tmp/jest-tests \
-      - run: npm test $(cat /tmp/tests-to-run)
+      - run: npm test $(cat /tmp/jest-tests)
   deploy:
     executor:
       name: deploy
