@@ -1,15 +1,13 @@
 version: 2.1
 
-aliases:
- - default: &default
-     # working_directory: ~/circleci_node_test
-     parameters:
-       parallelism:
-         type: integer
-         default: 1
-     environment:
-       parallelism: << parameters.parallelism >>
-     parallelism: << parameters.parallelism >>
+#aliases:
+# - default: &default
+#     # working_directory: ~/circleci_node_test
+#     parameters:
+#       parallelism:
+#         type: integer
+#         default: 3
+#     parallelism: << parameters.parallelism >>
 
 executors:
   build-and-test:
@@ -20,13 +18,47 @@ executors:
     machine:
       image: ubuntu-1604:202004-01
 
-commands:
-  test:
+jobs:
+  build-and-test:
     parameters:
       parallelism:
-        type: env_var_name
-        default: parallelism
+        type: integer
+        default: 3
+    parallelism: << parameters.parallelism >>
+    executor:
+      name: build-and-test
     steps:
+      - checkout
+      - when:
+          condition:
+            equal: [ << pipeline.git.branch >>, qa ]
+          steps:
+            - restore_cache:
+                name: "Restoring cache in qa branch"
+                keys:
+                  - v3-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
+                  - v3-dependency-cache-{{ .Branch }}-
+            - run: npm install
+            - save_cache:
+                name: "Saving cache in qa branch"
+                key: v3-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
+                paths:
+                  - ./node_modules
+      - unless:
+          condition:
+            equal: [ << pipeline.git.branch >>, qa ]
+          steps:
+            - restore_cache:
+                name: "Restoring cache in << pipeline.git.branch >> branch"
+                keys:
+                  - v3-dependency-cache-{{ checksum "package-lock.json" }}
+                  - v3-dependency-cache-
+            - run: npm install
+            - save_cache:
+                name: "Saving cache in << pipeline.git.branch >> branch"
+                key: v3-dependency-cache-{{ checksum "package-lock.json" }}
+                paths:
+                  - ./node_modules
       - when:
           condition:
             equal: [ << parameters.parallelism >>, 1 ]
@@ -44,56 +76,6 @@ commands:
                   circleci tests glob "__tests__/*.js" \
                     | circleci tests split > /tmp/jest-tests
                   npm test $(cat /tmp/jest-tests)
-
-jobs:
-  qa-build-and-test:
-    <<: *default
-    executor:
-      name: build-and-test
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - v3-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
-            - v3-dependency-cache-{{ .Branch }}-
-      - run: npm install
-      - save_cache:
-          key: v3-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
-          paths:
-            - ./node_modules
-      - test
-  build-and-test:
-    <<: *default
-    executor:
-      name: build-and-test
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - v3-dependency-cache-{{ checksum "package-lock.json" }}
-            - v3-dependency-cache-
-      - run: npm install
-      - save_cache:
-          key: v3-dependency-cache-{{ checksum "package-lock.json" }}
-          paths:
-            - ./node_modules
-      - when:
-          condition:
-            equal: [ << parameters.parallelism >>, 1 ]
-          steps:
-            - run:
-                name: "Run test in sequential"
-                command: npm test
-      - unless:
-          condition:
-            equal: [ << parameters.parallelism >>, 1 ]
-          steps:
-            - run:
-                name: "Run test in parallel"
-                command: |
-                  circleci tests glob "__tests__/*.js" \
-                    | circleci tests split > /tmp/jest-tests && \
-                  npm test $(cat /tmp/jest-tests)
   deploy:
     executor:
       name: deploy
@@ -105,19 +87,9 @@ jobs:
 workflows:
   build-test-and-deploy:
     jobs:
-      - qa-build-and-test:
-          filters:
-            branches:
-              only:
-                - qa
-      - build-and-test:
-          filters:
-            branches:
-              ignore:
-                - qa
+      - build-and-test
       - deploy:
           requires:
-            - qa-build-and-test
             - build-and-test
           filters:
             branches:
