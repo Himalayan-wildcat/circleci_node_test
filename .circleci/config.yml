@@ -53,13 +53,13 @@ jobs:
           key: v2-dependency-cache-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
+      - run: npm test
 #      - run:
 #          name: Split test files
 #          command: |
 #            circleci tests glob "__tests__/*.js" \
 #            | circleci tests split > /tmp/jest-tests \
 #      - run: npm test $(cat /tmp/jest-tests)
-       - run: npm test
   deploy:
     executor:
       name: deploy
