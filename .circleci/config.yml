@@ -1,6 +1,7 @@
 aliases:
  - default: &default
-     working_directory: ~/${REPONAME}
+#     working_directory: ~/${REPONAME}
+     working_directory: ~/circleci_node_test
      parameters:
        parallelism:
          type: integer
