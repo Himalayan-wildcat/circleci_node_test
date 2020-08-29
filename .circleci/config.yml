@@ -52,7 +52,10 @@ jobs:
           key: v1-dependency-cache-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
-      - run: echo 'all done(except qa branch)'
+      - run:
+          name: Split test files
+          command: |
+            circleci testes glob "__tests__/*.js" | circleci tets split
       - run: npm test
   deploy:
     executor:
