@@ -34,13 +34,13 @@ jobs:
             equal: [ << pipeline.git.branch >>, qa ]
           steps:
             - restore_cache:
-                name: "Restoring Cache in qa branch"
+                name: "Restoring Cache in qa Branch"
                 keys:
                   - v3-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
                   - v3-dependency-cache-{{ .Branch }}-
             - run: npm install
             - save_cache:
-                name: "Saving Cache in qa branch"
+                name: "Saving Cache in qa Branch"
                 key: v3-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
                 paths:
                   - ./node_modules
@@ -49,13 +49,13 @@ jobs:
             equal: [ << pipeline.git.branch >>, qa ]
           steps:
             - restore_cache:
-                name: "Restoring Cache in << pipeline.git.branch >> branch"
+                name: "Restoring Cache in << pipeline.git.branch >> Branch"
                 keys:
                   - v3-dependency-cache-{{ checksum "package-lock.json" }}
                   - v3-dependency-cache-
             - run: npm install
             - save_cache:
-                name: "Saving Cache in << pipeline.git.branch >> branch"
+                name: "Saving Cache in << pipeline.git.branch >> Branch"
                 key: v3-dependency-cache-{{ checksum "package-lock.json" }}
                 paths:
                   - ./node_modules
