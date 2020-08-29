@@ -33,6 +33,7 @@ jobs:
           paths:
             - ./node_modules
       - run:
+          name: Split test files
           command: |
             circleci testes glob "__tests__/*.js" | circleci tets split
       - run: npm test
