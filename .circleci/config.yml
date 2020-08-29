@@ -24,9 +24,9 @@ commands:
     parameters:
       parallelism:
         type: env_var_name
-        default: prallelism
+        default: parallelism
     steps:
-      - run: echo << parameters.parallelism >>
+      - run: echo ${<< parameters.parallelism >>}
       - when:
           condition:
             equal: [ << parameters.parallelism >>, 1 ]
