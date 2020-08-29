@@ -96,6 +96,7 @@ workflows:
               only:
                 - qa
       - build-and-test:
+          parallelism: 1
           filters:
             branches:
               ignore:
