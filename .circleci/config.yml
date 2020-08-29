@@ -6,6 +6,7 @@ aliases:
      parameters:
        parallelism:
          type: integer
+         default: 3
      environment:
        PARALLELISM: << parameters.parallelism >>
      parallelism: << parameters.parallelism >>
@@ -107,13 +108,11 @@ workflows:
   build-test-and-deploy:
     jobs:
       - qa-build-and-test:
-          parallelism: 1
           filters:
             branches:
               only:
                 - qa
       - build-and-test:
-          parallelism: 1
           filters:
             branches:
               ignore:
