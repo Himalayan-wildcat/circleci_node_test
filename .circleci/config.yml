@@ -22,14 +22,15 @@ executors:
 commands:
   test:
     steps:
-      - run:
-          name: Split test files
-          command: |
-            if [[ ${parallelism} > 1 ]]; then
+      - run: |
+            if [[ ${parallelism} == 1 ]]; then
+              npm test
+            elif [[ ${parallelism} > 1 ]]; then
               circleci tests glob "__tests__/*.js" \
-              | circleci tests split > /tmp/jest-tests
+              | circleci tests split > /tmp/jest-tests && \
+              npm test $(cat /tmp/jest-tests)
             fi
-      - run: npm test $(cat /tmp/jest-tests)
+      # - run: npm test $(cat /tmp/jest-tests)
 
 version: 2.1
 
