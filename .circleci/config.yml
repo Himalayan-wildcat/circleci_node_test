@@ -49,13 +49,13 @@ jobs:
             equal: [ << pipeline.git.branch >>, qa ]
           steps:
             - restore_cache:
-                name: "Restoring Cache in ${CIRCLE_BRANCH} branch"
+                name: "Restoring Cache in ${<< pipeline.git.branch >>} branch"
                 keys:
                   - v3-dependency-cache-{{ checksum "package-lock.json" }}
                   - v3-dependency-cache-
             - run: npm install
             - save_cache:
-                name: "Saving Cache in ${CIRCLE_BRANCH} branch"
+                name: "Saving Cache in ${<< pipeline.git.branch >>} branch"
                 key: v3-dependency-cache-{{ checksum "package-lock.json" }}
                 paths:
                   - ./node_modules
