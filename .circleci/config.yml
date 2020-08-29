@@ -1,53 +1,95 @@
-#anchors:
-#  - &default
-#      working_directory: ~/circleci_node_test
-#      shell: /bin/bash
-#  - &image
-#      docker:
-#        - image: cimg/node:8.17
+aliases:
+ - default: &default
+     # working_directory: ~/circleci_node_test
+     parameters:
+       parallelism:
+         type: integer
+         default: 3
+     environment:
+       parallelism: << parameters.parallelism >>
+     parallelism: << parameters.parallelism >>
 
 executors:
   build-and-test:
-    working_directory: ~/Nextremer/minarai-application2
     docker:
-       - image: cimg/node:8.17
+       # - image: cimg/node:8.17
+       - image: cimg/node:12.18
   deploy:
-    working_directory: ~/Nextremer/minarai-application2
     machine:
       image: ubuntu-1604:202004-01
+
+commands:
+  test:
+    steps:
+      - run: npm test
+
 version: 2.1
 
 jobs:
   qa-build-and-test:
+    <<: *default
     executor:
       name: build-and-test
     steps:
       - checkout
       - restore_cache:
           keys:
-            - v1-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
-            - v1-dependency-cache-{{ .Branch }}-
+            - v3-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
+            - v3-dependency-cache-{{ .Branch }}-
       - run: npm install
       - save_cache:
-          key: v1-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
+          key: v3-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
-      - run: echo 'all done(qa branch)'
+      - when:
+          condition:
+            equal: [ << parameters.parallelism >>, 1 ]
+          steps:
+            - run:
+                name: "Run test in sequential"
+                command: npm test
+      - unless:
+          condition:
+            equal: [ << parameters.parallelism >>, 1 ]
+          steps:
+            - run:
+                name: "Run test in parallel"
+                command: |
+                  circleci tests glob "__tests__/*.js" \
+                    | circleci tests split > /tmp/jest-tests && \
+                  npm test $(cat /tmp/jest-tests)
   build-and-test:
+    <<: *default
     executor:
       name: build-and-test
     steps:
       - checkout
       - restore_cache:
           keys:
-            - v1-dependency-cache-{{ checksum "package-lock.json" }}
-            - v1-dependency-cache-
+            - v3-dependency-cache-{{ checksum "package-lock.json" }}
+            - v3-dependency-cache-
       - run: npm install
       - save_cache:
-          key: v1-dependency-cache-{{ checksum "package-lock.json" }}
+          key: v3-dependency-cache-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
-      - run: echo 'all done(except qa branch)'
+      - when:
+          condition:
+            equal: [ << parameters.parallelism >>, 1 ]
+          steps:
+            - run:
+                name: "Run test in sequential"
+                command: npm test
+      - unless:
+          condition:
+            equal: [ << parameters.parallelism >>, 1 ]
+          steps:
+            - run:
+                name: "Run test in parallel"
+                command: |
+                  circleci tests glob "__tests__/*.js" \
+                    | circleci tests split > /tmp/jest-tests && \
+                  npm test $(cat /tmp/jest-tests)
   deploy:
     executor:
       name: deploy
