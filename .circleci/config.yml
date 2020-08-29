@@ -1,5 +1,6 @@
 aliases:
   - &working_directory ~/circleci_node_test
+  - &parallelism 3
 #      shell: /bin/bash
 
 executors:
@@ -17,6 +18,7 @@ version: 2.1
 
 jobs:
   qa-build-and-test:
+    parallelism: *parallelism
     executor:
       name: build-and-test
     steps:
@@ -30,9 +32,12 @@ jobs:
           key: v1-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
-      - run: echo 'all done(qa branch)'
+      - run:
+          command: |
+            circleci testes glob "__tests__/*.js" | circleci tets split
       - run: npm test
   build-and-test:
+    parallelism: *parallelism
     executor:
       name: build-and-test
     steps:
