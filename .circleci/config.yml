@@ -1,19 +1,15 @@
-#anchors:
-#  - &default
-#      working_directory: ~/circleci_node_test
+aliases:
+  - &working_directory ~/circleci_node_test
 #      shell: /bin/bash
-#  - &image
-#      docker:
-#        - image: cimg/node:8.17
 
 executors:
   build-and-test:
-    working_directory: ~/Nextremer/minarai-application2
+    working_directory: *working_directory
     docker:
        # - image: cimg/node:8.17
        - image: cimg/node:12.18
   deploy:
-    working_directory: ~/Nextremer/minarai-application2
+    working_directory: *working_directory
     machine:
       image: ubuntu-1604:202004-01
 
