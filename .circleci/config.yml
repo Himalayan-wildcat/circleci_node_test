@@ -55,7 +55,7 @@ jobs:
       - run:
           name: Split test files
           command: |
-            circleci tests glob "__tests__/*.js" | circleci tests split
+            circleci tests glob "__tests__/*.js" | circleci tests split > /tmp/tests-to-run
       - run: ./node_modules/.bin/jest $(cat /tmp/tests-to-run)
   deploy:
     executor:
