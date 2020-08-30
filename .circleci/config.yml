@@ -8,6 +8,7 @@ commands:
             equal: [ << pipeline.git.branch >>, qa ]
           steps:
             - restore_cache:
+                name: Restoring cache in qa branch
                 keys:
                   - v3-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
                   - v3-dependency-cache-{{ .Branch }}-
@@ -16,6 +17,7 @@ commands:
             equal: [ << pipeline.git.branch >>, qa ]
           steps:
             - restore_cache:
+                name: Restoring cache in << pipeline.git.branch >> branch
                 keys:
                   - v3-dependency-cache-{{ checksum "package-lock.json" }}
                   - v3-dependency-cache-
@@ -26,6 +28,7 @@ commands:
             equal: [ << pipeline.git.branch >>, qa ]
           steps:
             - save_cache:
+                name: Saving cache in qa branch
                 key: v3-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
                 paths:
                   - ./node_modules
@@ -34,6 +37,7 @@ commands:
             equal: [ << pipeline.git.branch >>, qa ]
           steps:
             - save_cache:
+                name: Saving cache in << pipeline.git.branch >> branch
                 key: v3-dependency-cache-{{ checksum "package-lock.json" }}
                 paths:
                   - ./node_modules
@@ -47,14 +51,14 @@ commands:
             equal: [ << parameters.parallelism >>, 1 ]
           steps:
             - run:
-                name: "Run test in sequence"
+                name: Run test in sequence
                 command: npm test
       - unless:
           condition:
             equal: [ << parameters.parallelism >>, 1 ]
           steps:
             - run:
-                name: "Run test in parallel"
+                name: Run test in parallel
                 command: |
                   circleci tests glob "__tests__/*.js" \
                     | circleci tests split > /tmp/jest-tests
