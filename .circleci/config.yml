@@ -1,46 +1,31 @@
 version: 2.1
 
-#aliases:
-# - default: &default
-#     # working_directory: ~/circleci_node_test
-#     parameters:
-#       parallelism:
-#         type: integer
-#         default: 3
-#     parallelism: << parameters.parallelism >>
-
-executors:
-  build-and-test:
-    docker:
-       # - image: cimg/node:8.17
-       - image: cimg/node:12.18
-  deploy:
-    machine:
-      image: ubuntu-1604:202004-01
-
-jobs:
-  build-and-test:
-    parameters:
-      parallelism:
-        type: integer
-        default: 3
-    parallelism: << parameters.parallelism >>
-    executor:
-      name: build-and-test
+commands:
+  restore-cache:
     steps:
-      - checkout
       - when:
           condition:
             equal: [ << pipeline.git.branch >>, qa ]
           steps:
             - restore_cache:
-                name: "Restoring cache in qa branch"
                 keys:
                   - v3-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
                   - v3-dependency-cache-{{ .Branch }}-
-            - run: npm install
+      - unless:
+          condition:
+            equal: [ << pipeline.git.branch >>, qa ]
+          steps:
+            - restore_cache:
+                keys:
+                  - v3-dependency-cache-{{ checksum "package-lock.json" }}
+                  - v3-dependency-cache-
+  save-cache:
+    steps:
+      - when:
+          condition:
+            equal: [ << pipeline.git.branch >>, qa ]
+          steps:
             - save_cache:
-                name: "Saving cache in qa branch"
                 key: v3-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
                 paths:
                   - ./node_modules
@@ -48,23 +33,21 @@ jobs:
           condition:
             equal: [ << pipeline.git.branch >>, qa ]
           steps:
-            - restore_cache:
-                name: "Restoring cache in << pipeline.git.branch >> branch"
-                keys:
-                  - v3-dependency-cache-{{ checksum "package-lock.json" }}
-                  - v3-dependency-cache-
-            - run: npm install
             - save_cache:
-                name: "Saving cache in << pipeline.git.branch >> branch"
                 key: v3-dependency-cache-{{ checksum "package-lock.json" }}
                 paths:
                   - ./node_modules
+  test:
+    parameters:
+      parallelism:
+        type: integer
+    steps:
       - when:
           condition:
             equal: [ << parameters.parallelism >>, 1 ]
           steps:
             - run:
-                name: "Run test in sequential"
+                name: "Run test in sequence"
                 command: npm test
       - unless:
           condition:
@@ -76,9 +59,27 @@ jobs:
                   circleci tests glob "__tests__/*.js" \
                     | circleci tests split > /tmp/jest-tests
                   npm test $(cat /tmp/jest-tests)
+
+jobs:
+  build-and-test:
+    parameters:
+      parallelism:
+        type: integer
+        default: 1
+    parallelism: << parameters.parallelism >>
+    docker:
+       # - image: cimg/node:8.17
+       - image: cimg/node:12.18
+    steps:
+      - checkout
+      - restore-cache
+      - run: npm install
+      - save-cache
+      - test:
+          parallelism: << parameters.parallelism >>
   deploy:
-    executor:
-      name: deploy
+    machine:
+      image: ubuntu-1604:202004-01
     steps:
       - checkout
       - run: sudo apt-get update
