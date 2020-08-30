@@ -65,7 +65,7 @@ jobs:
     parameters:
       parallelism:
         type: integer
-        default: 3
+        default: 1
     parallelism: << parameters.parallelism >>
     docker:
        # - image: cimg/node:8.17
