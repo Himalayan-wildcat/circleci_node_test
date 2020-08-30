@@ -1,24 +1,42 @@
 version: 2.1
 
-aliases:
- - default: &default
-     # working_directory: ~/circleci_node_test
-     parameters:
-       parallelism:
-         type: integer
-         default: 3
-     parallelism: << parameters.parallelism >>
-
-executors:
-  build-and-test:
-    docker:
-       # - image: cimg/node:8.17
-       - image: cimg/node:12.18
-  deploy:
-    machine:
-      image: ubuntu-1604:202004-01
-
 commands:
+  restore-cache:
+    steps:
+      - when:
+          condition:
+            equal: [ << pipeline.git.branch >>, qa ]
+          steps:
+            - restore_cache:
+                keys:
+                  - v3-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
+                  - v3-dependency-cache-{{ .Branch }}-
+      - unless:
+          condition:
+            equal: [ << pipeline.git.branch >>, qa ]
+          steps:
+            - restore_cache:
+                keys:
+                  - v3-dependency-cache-{{ checksum "package-lock.json" }}
+                  - v3-dependency-cache-
+  save-cache:
+    steps:
+      - when:
+          condition:
+            equal: [ << pipeline.git.branch >>, qa ]
+          steps:
+            - save_cache:
+                key: v3-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
+                paths:
+                  - ./node_modules
+      - unless:
+          condition:
+            equal: [ << pipeline.git.branch >>, qa ]
+          steps:
+            - save_cache:
+                key: v3-dependency-cache-{{ checksum "package-lock.json" }}
+                paths:
+                  - ./node_modules
   test:
     parameters:
       parallelism:
@@ -43,43 +61,25 @@ commands:
                   npm test $(cat /tmp/jest-tests)
 
 jobs:
-  qa-build-and-test:
-    <<: *default
-    executor:
-      name: build-and-test
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - v3-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
-            - v3-dependency-cache-{{ .Branch }}-
-      - run: npm install
-      - save_cache:
-          key: v3-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
-          paths:
-            - ./node_modules
-      - test:
-          parallelism: << parameters.parallelism >>
   build-and-test:
-    <<: *default
-    executor:
-      name: build-and-test
+    parameters:
+      parallelism:
+        type: integer
+        default: 3
+    parallelism: << parameters.parallelism >>
+    docker:
+       # - image: cimg/node:8.17
+       - image: cimg/node:12.18
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - v3-dependency-cache-{{ checksum "package-lock.json" }}
-            - v3-dependency-cache-
+      - restore-cache
       - run: npm install
-      - save_cache:
-          key: v3-dependency-cache-{{ checksum "package-lock.json" }}
-          paths:
-            - ./node_modules
+      - save-cache
       - test:
           parallelism: << parameters.parallelism >>
   deploy:
-    executor:
-      name: deploy
+    machine:
+      image: ubuntu-1604:202004-01
     steps:
       - checkout
       - run: sudo apt-get update
@@ -88,19 +88,9 @@ jobs:
 workflows:
   build-test-and-deploy:
     jobs:
-      - qa-build-and-test:
-          filters:
-            branches:
-              only:
-                - qa
-      - build-and-test:
-          filters:
-            branches:
-              ignore:
-                - qa
+      - build-and-test
       - deploy:
           requires:
-            - qa-build-and-test
             - build-and-test
           filters:
             branches:
