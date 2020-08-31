@@ -74,7 +74,7 @@ jobs:
     docker:
        # - image: cimg/node:8.17
        - image: cimg/node:12.18
-       - image: circlci/mysql:5.5
+       - image: circleci/mysql:5.5
     steps:
       - checkout
       - restore-cache
