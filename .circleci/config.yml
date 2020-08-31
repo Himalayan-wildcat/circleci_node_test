@@ -83,14 +83,11 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Wait for MySQL connection
-          command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
-      - run:
-          name: Wait for Redis connection
-          command: dockerize -wait tcp://127.0.0.1:6379 -timeout 1m
-      - run:
-          name: Wait for MongoDB connection
-          command: dockerize -wait tcp://127.0.0.1:27017 -timeout 1m
+          name: Wait for connections
+          command: |
+            dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
+            dockerize -wait tcp://127.0.0.1:6379 -timeout 1m
+            dockerize -wait tcp://127.0.0.1:27017 -timeout 1m
       - run:
           name: mysql
           command: |
