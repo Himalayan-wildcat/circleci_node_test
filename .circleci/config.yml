@@ -14,7 +14,7 @@ commands:
                   - v3-dependency-cache-{{ .Branch }}-
       - unless:
           condition:
-            equal: [ << pipeline.git.branch >>, qa ]
+n            equal: [ << pipeline.git.branch >>, qa ]
           steps:
             - restore_cache:
                 name: Restoring cache in << pipeline.git.branch >> branch
@@ -79,7 +79,7 @@ jobs:
            MYSQL_ALLOW_EMPTY_PASSWORD=TRUE
     steps:
       - checkout
-      - run: dockerize -wait tcp://127.0.0.1: 3306 -timeout 1m
+      - run: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
       - restore-cache
       - run: npm install
       - save-cache
