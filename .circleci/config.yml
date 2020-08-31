@@ -76,14 +76,15 @@ jobs:
        - image: cimg/node:12.18
        - image: circleci/mysql:5.5
          environment:
-           MYSQL_ALLOW_EMPTY_PASSWORD=TRUE
+           MYSQL_ALLOW_EMPTY_PASSWORD: yes
+           MYSQL_USER: circleci
     steps:
       - checkout
       - run: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
       - run:
           name: foobar
           command: |
-            echo ok
+            sudo apt-get update &&
             sudo apt-get install default-mysql-client
             mysql -h 127.0.0.1 -u root
       - restore-cache
