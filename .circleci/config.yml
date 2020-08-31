@@ -14,7 +14,7 @@ commands:
                   - v3-dependency-cache-{{ .Branch }}-
       - unless:
           condition:
-n            equal: [ << pipeline.git.branch >>, qa ]
+            equal: [ << pipeline.git.branch >>, qa ]
           steps:
             - restore_cache:
                 name: Restoring cache in << pipeline.git.branch >> branch
