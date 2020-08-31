@@ -97,11 +97,6 @@ jobs:
             sudo apt-get update &&
             sudo apt-get install default-mysql-client
             mysql -h 127.0.0.1 -u root -e 'select host,user from mysql.user;'
-      - run:
-          name: mongo
-          command: |
-            mongo --host 127.0.0.1
-            show dbs;
       - restore-cache
       - run: npm install
       - save-cache
