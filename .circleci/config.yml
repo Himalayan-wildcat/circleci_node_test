@@ -74,11 +74,12 @@ jobs:
     docker:
        # - image: cimg/node:8.17
        - image: cimg/node:12.18
-       - image: circleci/mysql:5.5
+       - image: circleci/mysql:5.7
          environment:
            MYSQL_ALLOW_EMPTY_PASSWORD: yes
            MYSQL_USER: circleci
        - image: circleci/redis:3.2
+       - image: circleci/mongo:3.6
     steps:
       - checkout
       - run:
@@ -88,11 +89,19 @@ jobs:
           name: Wait for Redis connection
           command: dockerize -wait tcp://127.0.0.1:6379 -timeout 1m
       - run:
-          name: foobar
+          name: Wait for MongoDB connection
+          command: dockerize -wait tcp://127.0.0.1:27017 -timeout 1m
+      - run:
+          name: mysql
           command: |
             sudo apt-get update &&
             sudo apt-get install default-mysql-client
-            mysql -h 127.0.0.1 -u root
+            mysql -h 127.0.0.1 -u root -e 'select host,user from mysql.user;'
+      - run:
+          name: mongo
+          command: |
+            mongo --host 127.0.0.1
+            show dbs;
       - restore-cache
       - run: npm install
       - save-cache
