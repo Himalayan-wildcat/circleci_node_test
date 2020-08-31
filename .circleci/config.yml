@@ -78,9 +78,15 @@ jobs:
          environment:
            MYSQL_ALLOW_EMPTY_PASSWORD: yes
            MYSQL_USER: circleci
+       - image: circleci/redis:3.2
     steps:
       - checkout
-      - run: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
+      - run:
+          name: Wait for MySQL connection
+          command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
+      - run:
+          name: Wait for Redis connection
+          command: dockerize -wait tcp://127.0.0.1:6379 -timeout 1m
       - run:
           name: foobar
           command: |
