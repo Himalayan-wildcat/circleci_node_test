@@ -102,12 +102,13 @@ jobs:
       - save-cache
       - test:
           parallelism: << parameters.parallelism >>
+      - run: npm start
   deploy:
     machine:
       image: ubuntu-1604:202004-01
     steps:
       - checkout
-      - run: npm start
+      - run: sudo apt-get update
 
 workflows:
   build-test-and-deploy:
