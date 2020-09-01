@@ -99,6 +99,10 @@ jobs:
             mysql -h 127.0.0.1 -u root -e 'select host,user from mysql.user;'
       - test:
           parallelism: << parameters.parallelism >>
+      - store_test_results:
+          path: reports
+      - store_artifacts:
+          path: reports
       - store_artifacts:
           path: coverage
       - run: npm start
