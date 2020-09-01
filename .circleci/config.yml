@@ -61,7 +61,7 @@ commands:
                 name: Run test in parallel
                 command: |
                   circleci tests glob "__tests__/*.js" \
-                    | circleci tests split > /tmp/jest-tests
+                    | circleci tests split --split-by=timings > /tmp/jest-tests
                   npm test $(cat /tmp/jest-tests)
 
 jobs:
