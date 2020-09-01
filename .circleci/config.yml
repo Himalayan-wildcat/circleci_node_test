@@ -100,7 +100,7 @@ jobs:
       - test:
           parallelism: << parameters.parallelism >>
       - store_test_results:
-          path: test-results
+          path: coverage
       - run: npm start
   deploy:
     machine:
