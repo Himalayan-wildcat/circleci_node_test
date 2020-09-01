@@ -82,6 +82,9 @@ jobs:
        - image: circleci/mongo:3.6
     steps:
       - checkout
+      - restore-cache
+      - run: npm install
+      - save-cache
       - run:
           name: Wait for connections
           command: |
@@ -94,11 +97,10 @@ jobs:
             sudo apt-get update &&
             sudo apt-get install default-mysql-client
             mysql -h 127.0.0.1 -u root -e 'select host,user from mysql.user;'
-      - restore-cache
-      - run: npm install
-      - save-cache
       - test:
           parallelism: << parameters.parallelism >>
+      - store_test_results:
+          path: test-results
       - run: npm start
   deploy:
     machine:
